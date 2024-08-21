@@ -49,32 +49,117 @@ const mainCommand = defineCommand({
   },
   args: {},
   async run() {
-    const profile = await input({ message: 'Enter the profile name:' })
-    const awsAccessKeyId = await input({ message: 'Enter your AWS Access Key ID:' })
-    const awsSecretAccessKey = await password({
-      message: 'Enter your AWS Secret Access Key:',
-      mask: '*',
-    })
-    const region = await select({
-      message: 'Select a region:',
-      choices: awsRegions.map(r => ({ value: r, name: r })),
+    const action = await select({
+      message: 'Select an action:',
+      choices: [
+        { value: 'add', name: 'Add a new profile' },
+        { value: 'list', name: 'List existing profiles' },
+        { value: 'update', name: 'Update an existing profile' },
+        { value: 'delete', name: 'Delete a profile' },
+      ],
     })
 
-    if (await profileExists(profile, credentialsPath) || await profileExists(profile, configPath)) {
-      const overwrite = await confirm({
-        message: `Profile "${profile}" already exists. Overwrite?`,
-        default: false,
-      })
-      if (!overwrite) {
-        consola.info('Operation cancelled.')
-        return
-      }
+    switch (action) {
+      case 'add':
+        await addProfile()
+        break
+      case 'list':
+        await listProfiles()
+        break
+      case 'update':
+        await updateProfile()
+        break
+      case 'delete':
+        await deleteProfile()
+        break
     }
-
-    await writeAWSCredentials(profile, awsAccessKeyId, awsSecretAccessKey)
-    await writeAWSConfig(profile, region)
   },
 })
+
+async function addProfile() {
+  const profile = await input({ message: 'Enter the profile name:' })
+  const awsAccessKeyId = await input({ message: 'Enter your AWS Access Key ID:' })
+  const awsSecretAccessKey = await password({
+    message: 'Enter your AWS Secret Access Key:',
+    mask: '*',
+  })
+  const region = await select({
+    message: 'Select a region:',
+    choices: awsRegions.map(r => ({ value: r, name: r })),
+  })
+
+  if (await profileExists(profile, credentialsPath) || await profileExists(profile, configPath)) {
+    const overwrite = await confirm({
+      message: `Profile "${profile}" already exists. Overwrite?`,
+      default: false,
+    })
+    if (!overwrite) {
+      consola.info('Operation cancelled.')
+      return
+    }
+  }
+
+  await writeAWSCredentials(profile, awsAccessKeyId, awsSecretAccessKey)
+  await writeAWSConfig(profile, region)
+}
+
+async function listProfiles() {
+  const credentials = await fs.readFile(credentialsPath, 'utf-8')
+  const config = await fs.readFile(configPath, 'utf-8')
+
+  const credentialProfiles = credentials.match(/\[.+?\]/g) || []
+  const configProfiles = config.match(/\[profile .+?\]/g) || []
+
+  const profiles = new Set([
+    ...credentialProfiles.map(p => p.slice(1, -1)),
+    ...configProfiles.map(p => p.slice(9, -1)),
+  ])
+
+  consola.info('Existing profiles:')
+  profiles.forEach(profile => consola.log(profile))
+}
+
+async function updateProfile() {
+  const profiles = await getExistingProfiles()
+  const profile = await select({
+    message: 'Select the profile to update:',
+    choices: profiles.map(p => ({ value: p, name: p })),
+  })
+
+  const awsAccessKeyId = await input({ message: 'Enter your new AWS Access Key ID:' })
+  const awsSecretAccessKey = await password({
+    message: 'Enter your new AWS Secret Access Key:',
+    mask: '*',
+  })
+  const region = await select({
+    message: 'Select a new region:',
+    choices: awsRegions.map(r => ({ value: r, name: r })),
+  })
+
+  await writeAWSCredentials(profile, awsAccessKeyId, awsSecretAccessKey)
+  await writeAWSConfig(profile, region)
+}
+
+async function deleteProfile() {
+  const profiles = await getExistingProfiles()
+  const profile = await select({
+    message: 'Select the profile to delete:',
+    choices: profiles.map(p => ({ value: p, name: p })),
+  })
+
+  const confirmDelete = await confirm({
+    message: `Are you sure you want to delete profile "${profile}"?`,
+    default: false,
+  })
+  if (!confirmDelete) {
+    consola.info('Operation cancelled.')
+    return
+  }
+
+  await removeProfileFromFile(profile, credentialsPath)
+  await removeProfileFromFile(profile, configPath)
+  consola.success(`Profile "${profile}" has been deleted.`)
+}
 
 async function profileExists(profileName: string, filePath: string): Promise<boolean> {
   try {
@@ -113,6 +198,32 @@ async function writeAWSConfig(profileName: string, region: string) {
   catch (error) {
     consola.error('Failed to save configuration:', error)
   }
+}
+
+async function removeProfileFromFile(profileName: string, filePath: string) {
+  try {
+    const content = await fs.readFile(filePath, 'utf-8')
+    const updatedContent = content.replace(new RegExp(`\\[${profileName}\\][^\\[]*`, 'g'), '')
+      .replace(new RegExp(`\\[profile ${profileName}\\][^\\[]*`, 'g'), '')
+      .trim()
+    await fs.writeFile(filePath, `${updatedContent}\n`)
+  }
+  catch (error) {
+    consola.error(`Failed to remove profile from ${filePath}:`, error)
+  }
+}
+
+async function getExistingProfiles(): Promise<string[]> {
+  const credentials = await fs.readFile(credentialsPath, 'utf-8')
+  const config = await fs.readFile(configPath, 'utf-8')
+
+  const credentialProfiles = credentials.match(/\[.+?\]/g) || []
+  const configProfiles = config.match(/\[profile .+?\]/g) || []
+
+  return Array.from(new Set([
+    ...credentialProfiles.map(p => p.slice(1, -1)),
+    ...configProfiles.map(p => p.slice(9, -1)),
+  ]))
 }
 
 export const runMain = () => _runMain(mainCommand)
