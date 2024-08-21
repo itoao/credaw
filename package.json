@@ -5,7 +5,12 @@
   "description": "",
   "author": "aoito",
   "license": "MIT",
-  "keywords": [],
+  "keywords": [
+    "AWS",
+    "CLI",
+    "nodejs",
+    "typescript"
+  ],
   "exports": {
     ".": {
       "import": "./dist/index.mjs",
