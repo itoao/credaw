@@ -35,6 +35,8 @@
   "devDependencies": {
     "@antfu/eslint-config": "^2.27.0",
     "@types/fs-extra": "^11.0.4",
-    "eslint": "^9.9.0"
+  "volta": {
+    "node": "20.10.0",
+    "npm": "10.2.5"
   }
 }
