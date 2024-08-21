@@ -1,7 +1,7 @@
 import path from 'node:path'
 import inquirer from 'inquirer'
 import fs from 'fs-extra'
-import chalk from 'chalk'
+import { consola } from 'consola'
 
 const { HOME, USERPROFILE } = process.env
 const awsDir = path.join(HOME || USERPROFILE || '', '.aws')
@@ -59,14 +59,14 @@ async function getAWSConfig() {
         default: false,
       }])
       if (!overwrite) {
-        console.log(chalk.yellow('Operation cancelled.'))
+        consola.warn('Operation cancelled.')
         process.exit(0)
       }
     }
     return answers
   }
   catch (error) {
-    console.error(chalk.red('An error occurred:'), error)
+    consola.error('An error occurred:', error)
     throw error
   }
 }
@@ -78,10 +78,10 @@ async function writeAWSCredentials(profileName: string, awsAccessKeyId: string, 
     const existingContent = await fs.readFile(credentialsPath, 'utf-8')
     const updatedContent = existingContent.replace(new RegExp(`\\[${profileName}\\][^\\[]*`, 'g'), '') + credentialsData
     await fs.writeFile(credentialsPath, `${updatedContent.trim()}\n`)
-    console.log(chalk.green(`AWS credentials saved to ${credentialsPath}.`))
+    consola.success(`AWS credentials saved to ${credentialsPath}.`)
   }
   catch (error) {
-    console.error(chalk.red('Failed to save credentials:'), error)
+    consola.error('Failed to save credentials:', error)
   }
 }
 
@@ -93,10 +93,10 @@ async function writeAWSConfig(profileName: string, region: string) {
     const cleanedContent = existingContent.replace(new RegExp(`\\[profile ${profileName}\\][^\\[]*`, 'g'), '').trim()
     const contentToWrite = cleanedContent + (cleanedContent ? '\n\n' : '') + configData
     await fs.writeFile(configPath, contentToWrite)
-    console.log(chalk.green(`AWS configuration saved to ${configPath}.`))
+    consola.success(`AWS configuration saved to ${configPath}.`)
   }
   catch (error) {
-    console.error(chalk.red('Failed to save configuration:'), error)
+    consola.error('Failed to save configuration:', error)
   }
 }
 
