@@ -26,7 +26,7 @@
     "dist"
   ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "jiti src/index.ts",
     "build": "unbuild",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
@@ -40,6 +40,9 @@
   "devDependencies": {
     "@antfu/eslint-config": "^2.27.0",
     "@types/fs-extra": "^11.0.4",
+    "eslint": "^9.9.0",
+    "jiti": "^1.21.6"
+  },
   "volta": {
     "node": "20.10.0",
     "npm": "10.2.5"
