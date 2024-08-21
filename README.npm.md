@@ -39,51 +39,7 @@ When adding a new profile:
 3. Enter your AWS Secret Access Key
 4. Select your AWS region
 
-Once the information is provided, `credaw` will automatically save the details to `~/.
-aws/credentials` and `~/.aws/config`.
-
-## Developer Information
-
-### Development
-
-1. Build the project:
-   ```
-   npm run build
-   ```
-
-2. Install the package globally:
-   ```
-   npm install -g .
-   ```
-
-3. Run the CLI tool:
-   ```
-   credaw-dev
-   ```
-
-### Production Release
-
-1. Update version
-
-2. Build:
-   ```
-   npm run build
-   ```
-
-3. Publish:
-   ```
-   npm publish
-   ```
-
-4. Global installation:
-   ```
-   npm i -g credaw
-   ```
-
-5. Usage:
-   ```
-   credaw
-   ```
+Once the information is provided, `credaw` will automatically save the details to `~/.aws/credentials` and `~/.aws/config`.
 
 ## License
 

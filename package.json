@@ -19,14 +19,18 @@
   },
   "main": "./dist/index.cjs",
   "bin": {
+    "credaw-dev": "./bin/cli.mjs",
     "credaw": "./bin/cli.mjs"
   },
   "files": [
+    "README.npm.md",
     "dist"
   ],
+  "readme": "README.npm.md",
   "scripts": {
     "dev": "jiti src/run.ts",
     "build": "unbuild",
+    "start": "node ./bin/cli.mjs",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix"
   },
@@ -35,6 +39,7 @@
     "consola": "^3.2.3",
     "fs-extra": "^11.2.0",
     "inquirer": "^10.1.8",
+    "pkg-types": "^1.1.3",
     "unbuild": "^2.0.0"
   },
   "devDependencies": {
