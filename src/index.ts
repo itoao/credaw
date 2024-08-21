@@ -2,7 +2,7 @@ import path from 'node:path'
 import fs from 'fs-extra'
 import { consola } from 'consola'
 import { runMain as _runMain, defineCommand } from 'citty'
-import inquirer from 'inquirer'
+import { confirm, input, password, select } from '@inquirer/prompts'
 
 const { HOME, USERPROFILE } = process.env
 const awsDir = path.join(HOME || USERPROFILE || '', '.aws')
@@ -47,41 +47,19 @@ const mainCommand = defineCommand({
   },
   args: {},
   async run() {
-    const answers = await inquirer.prompt([
-      {
-        type: 'input',
-        name: 'profile',
-        message: 'Enter the profile name:',
-      },
-      {
-        type: 'input',
-        name: 'awsAccessKeyId',
-        message: 'Enter your AWS Access Key ID:',
-      },
-      {
-        type: 'password',
-        name: 'awsSecretAccessKey',
-        message: 'Enter your AWS Secret Access Key:',
-      },
-      {
-        type: 'list',
-        name: 'region',
-        message: 'Select a region:',
-        choices: awsRegions,
-      },
-    ])
-
-    const { profile, awsAccessKeyId, awsSecretAccessKey, region } = answers
+    const profile = await input({ message: 'Enter the profile name:' })
+    const awsAccessKeyId = await input({ message: 'Enter your AWS Access Key ID:' })
+    const awsSecretAccessKey = await password({ message: 'Enter your AWS Secret Access Key:' })
+    const region = await select({
+      message: 'Select a region:',
+      choices: awsRegions.map(r => ({ value: r, name: r })),
+    })
 
     if (await profileExists(profile, credentialsPath) || await profileExists(profile, configPath)) {
-      const { overwrite } = await inquirer.prompt([
-        {
-          type: 'confirm',
-          name: 'overwrite',
-          message: `Profile "${profile}" already exists. Overwrite?`,
-          default: false,
-        },
-      ])
+      const overwrite = await confirm({
+        message: `Profile "${profile}" already exists. Overwrite?`,
+        default: false,
+      })
       if (!overwrite) {
         consola.info('Operation cancelled.')
         return
