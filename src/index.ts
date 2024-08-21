@@ -5,6 +5,7 @@ import { consola } from 'consola'
 import { colorize } from 'consola/utils'
 import { runMain as _runMain, defineCommand } from 'citty'
 import { confirm, input, password, select } from '@inquirer/prompts'
+import { readPackageJSON } from 'pkg-types'
 
 const { HOME, USERPROFILE } = process.env
 const awsDir = path.join(HOME || USERPROFILE || '', '.aws')
@@ -47,8 +48,20 @@ const mainCommand = defineCommand({
     version: '1.0.0',
     description: 'CLI tool for easy AWS credential management',
   },
-  args: {},
-  async run() {
+  args: {
+    version: {
+      type: 'boolean',
+      description: 'Show version',
+      alias: 'v',
+    },
+  },
+  async run({ args }) {
+    if (args.version) {
+      const { version } = await readPackageJSON(process.cwd())
+      consola.info(version)
+      return
+    }
+
     const action = await select({
       message: 'Select an action:',
       choices: [
