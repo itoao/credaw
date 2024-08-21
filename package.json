@@ -1,7 +1,7 @@
 {
   "name": "credaw",
   "type": "module",
-  "version": "1.0.4",
+  "version": "1.1.1",
   "description": "CLI tool for easy AWS credential management.",
   "author": "aoito",
   "license": "MIT",
