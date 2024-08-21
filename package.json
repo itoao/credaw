@@ -1,15 +1,23 @@
 {
   "name": "credaw",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "",
-  "main": "src/index.ts",
+  "main": "./dist/index.cjs",
+  "types": "./dist/index.d.ts",
+  "files": ["dist"],
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    }
+  },
   "bin": {
-    "credaw": "./dist/index.js"
+    "credaw": "./dist/index.cjs"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "tsc"
+    "build": "exec unbuild"
   },
   "keywords": [],
   "author": "aoito",
@@ -17,7 +25,8 @@
   "dependencies": {
     "chalk": "^5.3.0",
     "fs-extra": "^11.2.0",
-    "inquirer": "^10.1.8"
+    "inquirer": "^10.1.8",
+    "unbuild": "^2.0.0"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4"
