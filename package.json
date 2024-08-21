@@ -1,6 +1,6 @@
 {
   "name": "credaw",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "",
   "main": "src/index.ts",
   "type": "module",
@@ -13,12 +13,10 @@
   },
   "keywords": [],
   "author": "aoito",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "chalk": "^5.3.0",
     "fs-extra": "^11.2.0",
-    "i18next": "^23.14.0",
-    "i18next-fs-backend": "^2.3.2",
     "inquirer": "^10.1.8"
   },
   "devDependencies": {

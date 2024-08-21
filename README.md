@@ -1,4 +1,4 @@
-# credaw
+# credaw 🛡️
 
 `credaw` is a CLI tool designed to simplify the setup of AWS credentials. It allows you to interactively input your profile name, access key, secret key, and region, then automatically writes them to your credentials and config files.
 
