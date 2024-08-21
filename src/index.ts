@@ -1,4 +1,3 @@
-#!/usr/bin/env node
 import path from 'node:path'
 import inquirer from 'inquirer'
 import fs from 'fs-extra'
@@ -25,26 +24,26 @@ async function getAWSConfig() {
   const questions = [
     {
       type: 'input',
-      name: 'profileName',
-      message: 'プロファイル名を入力してください:',
-      validate: (input: string) => input ? true : 'プロファイル名は必須です',
+      name: 'profile',
+      message: 'Enter the profile name:',
+      validate: (input: string) => input ? true : 'Profile name is required',
     },
     {
       type: 'input',
-      name: 'awsAccessKeyId',
-      message: 'AWS Access Key IDを入力してください:',
-      validate: (input: string) => input ? true : 'AWS Access Key IDは必須です',
+      name: 'aws_access_key_id',
+      message: 'Enter your AWS Access Key ID:',
+      validate: (input: string) => input ? true : 'AWS Access Key ID is required',
     },
     {
       type: 'password',
-      name: 'awsSecretAccessKey',
-      message: 'AWS Secret Access Keyを入力してください:',
-      validate: (input: string) => input ? true : 'AWS Secret Access Keyは必須です',
+      name: 'aws_secret_access_key',
+      message: 'Enter your AWS Secret Access Key:',
+      validate: (input: string) => input ? true : 'AWS Secret Access Key is required',
     },
     {
       type: 'list',
       name: 'region',
-      message: 'リージョンを選択してください:',
+      message: 'Select a region:',
       choices: awsRegions,
       pageSize: 10,
     },
@@ -56,18 +55,18 @@ async function getAWSConfig() {
       const { overwrite } = await inquirer.prompt([{
         type: 'confirm',
         name: 'overwrite',
-        message: `プロファイル "${answers.profileName}" は既に存在します。上書きしますか？`,
+        message: `Profile "${answers.profileName}" already exists. Do you want to overwrite it?`,
         default: false,
       }])
       if (!overwrite) {
-        console.log(chalk.yellow('操作がキャンセルされました。'))
+        console.log(chalk.yellow('Operation cancelled.'))
         process.exit(0)
       }
     }
     return answers
   }
   catch (error) {
-    console.error(chalk.red('エラーが発生しました:'), error)
+    console.error(chalk.red('An error occurred:'), error)
     throw error
   }
 }
@@ -79,10 +78,10 @@ async function writeAWSCredentials(profileName: string, awsAccessKeyId: string, 
     const existingContent = await fs.readFile(credentialsPath, 'utf-8')
     const updatedContent = existingContent.replace(new RegExp(`\\[${profileName}\\][^\\[]*`, 'g'), '') + credentialsData
     await fs.writeFile(credentialsPath, `${updatedContent.trim()}\n`)
-    console.log(chalk.green(`AWSクレデンシャルが ${credentialsPath} に保存されました。`))
+    console.log(chalk.green(`AWS credentials saved to ${credentialsPath}.`))
   }
   catch (error) {
-    console.error(chalk.red('クレデンシャルの保存に失敗しました:'), error)
+    console.error(chalk.red('Failed to save credentials:'), error)
   }
 }
 
@@ -94,10 +93,10 @@ async function writeAWSConfig(profileName: string, region: string) {
     const cleanedContent = existingContent.replace(new RegExp(`\\[profile ${profileName}\\][^\\[]*`, 'g'), '').trim()
     const contentToWrite = cleanedContent + (cleanedContent ? '\n\n' : '') + configData
     await fs.writeFile(configPath, contentToWrite)
-    console.log(chalk.green(`AWS設定が ${configPath} に保存されました。`))
+    console.log(chalk.green(`AWS configuration saved to ${configPath}.`))
   }
   catch (error) {
-    console.error(chalk.red('設定の保存に失敗しました:'), error)
+    console.error(chalk.red('Failed to save configuration:'), error)
   }
 }
 
