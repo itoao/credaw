@@ -1,7 +1,8 @@
 import path from 'node:path'
-import inquirer from 'inquirer'
 import fs from 'fs-extra'
 import { consola } from 'consola'
+import { runMain as _runMain, defineCommand } from 'citty'
+import inquirer from 'inquirer'
 
 const { HOME, USERPROFILE } = process.env
 const awsDir = path.join(HOME || USERPROFILE || '', '.aws')
@@ -10,6 +11,60 @@ const configPath = path.join(awsDir, 'config')
 
 const awsRegions = ['us-east-1', 'us-west-2', 'ap-northeast-1', 'eu-west-1']
 
+const mainCommand = defineCommand({
+  meta: {
+    name: 'credaw',
+    version: '1.0.0',
+    description: 'CLI tool for easy AWS credential management',
+  },
+  args: {},
+  async run() {
+    const answers = await inquirer.prompt([
+      {
+        type: 'input',
+        name: 'profile',
+        message: 'Enter the profile name:',
+      },
+      {
+        type: 'input',
+        name: 'awsAccessKeyId',
+        message: 'Enter your AWS Access Key ID:',
+      },
+      {
+        type: 'password',
+        name: 'awsSecretAccessKey',
+        message: 'Enter your AWS Secret Access Key:',
+      },
+      {
+        type: 'list',
+        name: 'region',
+        message: 'Select a region:',
+        choices: awsRegions,
+      },
+    ])
+
+    const { profile, awsAccessKeyId, awsSecretAccessKey, region } = answers
+
+    if (await profileExists(profile, credentialsPath) || await profileExists(profile, configPath)) {
+      const { overwrite } = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'overwrite',
+          message: `Profile "${profile}" already exists. Overwrite?`,
+          default: false,
+        },
+      ])
+      if (!overwrite) {
+        consola.info('Operation cancelled.')
+        return
+      }
+    }
+
+    await writeAWSCredentials(profile, awsAccessKeyId, awsSecretAccessKey)
+    await writeAWSConfig(profile, region)
+  },
+})
+
 async function profileExists(profileName: string, filePath: string): Promise<boolean> {
   try {
     const content = await fs.readFile(filePath, 'utf-8')
@@ -17,57 +72,6 @@ async function profileExists(profileName: string, filePath: string): Promise<boo
   }
   catch {
     return false
-  }
-}
-
-async function getAWSConfig() {
-  const questions = [
-    {
-      type: 'input',
-      name: 'profile',
-      message: 'Enter the profile name:',
-      validate: (input: string) => input ? true : 'Profile name is required',
-    },
-    {
-      type: 'input',
-      name: 'aws_access_key_id',
-      message: 'Enter your AWS Access Key ID:',
-      validate: (input: string) => input ? true : 'AWS Access Key ID is required',
-    },
-    {
-      type: 'password',
-      name: 'aws_secret_access_key',
-      message: 'Enter your AWS Secret Access Key:',
-      validate: (input: string) => input ? true : 'AWS Secret Access Key is required',
-    },
-    {
-      type: 'list',
-      name: 'region',
-      message: 'Select a region:',
-      choices: awsRegions,
-      pageSize: 10,
-    },
-  ]
-
-  try {
-    const answers = await inquirer.prompt(questions)
-    if (await profileExists(answers.profileName, credentialsPath) || await profileExists(answers.profileName, configPath)) {
-      const { overwrite } = await inquirer.prompt([{
-        type: 'confirm',
-        name: 'overwrite',
-        message: `Profile "${answers.profileName}" already exists. Do you want to overwrite it?`,
-        default: false,
-      }])
-      if (!overwrite) {
-        consola.warn('Operation cancelled.')
-        process.exit(0)
-      }
-    }
-    return answers
-  }
-  catch (error) {
-    consola.error('An error occurred:', error)
-    throw error
   }
 }
 
@@ -100,8 +104,4 @@ async function writeAWSConfig(profileName: string, region: string) {
   }
 }
 
-(async () => {
-  const { profileName, awsAccessKeyId, awsSecretAccessKey, region } = await getAWSConfig()
-  await writeAWSCredentials(profileName, awsAccessKeyId, awsSecretAccessKey)
-  await writeAWSConfig(profileName, region)
-})()
+export const runMain = () => _runMain(mainCommand)
