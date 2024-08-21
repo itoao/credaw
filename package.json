@@ -13,13 +13,13 @@
   ],
   "exports": {
     ".": {
-      "import": "./dist/run.mjs",
-      "require": "./dist/run.cjs"
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
     }
   },
-  "main": "./dist/run.cjs",
+  "main": "./dist/index.cjs",
   "bin": {
-    "credaw": "./dist/run.cjs"
+    "credaw": "./dist/index.cjs"
   },
   "files": [
     "dist"
