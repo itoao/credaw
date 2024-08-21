@@ -51,7 +51,10 @@ const mainCommand = defineCommand({
   async run() {
     const profile = await input({ message: 'Enter the profile name:' })
     const awsAccessKeyId = await input({ message: 'Enter your AWS Access Key ID:' })
-    const awsSecretAccessKey = await password({ message: 'Enter your AWS Secret Access Key:' })
+    const awsSecretAccessKey = await password({
+      message: 'Enter your AWS Secret Access Key:',
+      mask: '*',
+    })
     const region = await select({
       message: 'Select a region:',
       choices: awsRegions.map(r => ({ value: r, name: r })),
