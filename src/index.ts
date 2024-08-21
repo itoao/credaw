@@ -1,6 +1,7 @@
 import path from 'node:path'
 import fs from 'fs-extra'
 import { consola } from 'consola'
+import { colorize } from 'consola/utils'
 import { runMain as _runMain, defineCommand } from 'citty'
 import { confirm, input, password, select } from '@inquirer/prompts'
 
@@ -88,7 +89,7 @@ async function writeAWSCredentials(profileName: string, awsAccessKeyId: string, 
     const existingContent = await fs.readFile(credentialsPath, 'utf-8')
     const updatedContent = existingContent.replace(new RegExp(`\\[${profileName}\\][^\\[]*`, 'g'), '') + credentialsData
     await fs.writeFile(credentialsPath, `${updatedContent.trim()}\n`)
-    consola.success(`AWS credentials saved to ${credentialsPath}.`)
+    consola.success(`AWS credentials saved to ${colorize('green', credentialsPath)}.`)
   }
   catch (error) {
     consola.error('Failed to save credentials:', error)
@@ -103,7 +104,7 @@ async function writeAWSConfig(profileName: string, region: string) {
     const cleanedContent = existingContent.replace(new RegExp(`\\[profile ${profileName}\\][^\\[]*`, 'g'), '').trim()
     const contentToWrite = cleanedContent + (cleanedContent ? '\n\n' : '') + configData
     await fs.writeFile(configPath, contentToWrite)
-    consola.success(`AWS configuration saved to ${configPath}.`)
+    consola.success(`AWS configuration saved to ${colorize('green', configPath)}.`)
   }
   catch (error) {
     consola.error('Failed to save configuration:', error)
