@@ -25,11 +25,21 @@ const mainCommand = defineCommand({
       description: 'Show version',
       alias: 'v',
     },
+    ls: {
+      type: 'boolean',
+      description: 'List existing profiles',
+      alias: 'l',
+    },
   },
   async run({ args }) {
     if (args.version) {
       const { version } = await readPackageJSON(process.cwd())
       consola.info(version)
+      return
+    }
+
+    if (args.ls) {
+      await listProfiles()
       return
     }
 
