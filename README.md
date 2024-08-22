@@ -25,6 +25,8 @@ Simply run the `credaw` command to start the profile management process:
 credaw
 ```
 
+<img src="assets/capture.gif" alt="capture">
+
 You will be presented with the following options:
 
 1. Add a new profile
