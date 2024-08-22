@@ -48,7 +48,7 @@ aws/credentials` and `~/.aws/config`.
 
 1. Build the project:
    ```
-   npm run build
+   pnpm build
    ```
 
 2. Install the package globally:
@@ -67,7 +67,7 @@ aws/credentials` and `~/.aws/config`.
 
 2. Build:
    ```
-   npm run build
+   pnpm build
    ```
 
 3. Publish:
